@@ -58,11 +58,41 @@ pipeline {
                 }
             }
         }
+        stage('Coverage') {
+            steps {
+                script {
+                    // Activate virtual environment and run coverage
+                    bat """
+                        call ${VIRTUAL_ENV}\\Scripts\\activate
+                        coverage run -m pytest
+                        coverage report
+                        coverage html
+                    """
+                }
+            }
+        }
+        stage('Security Scan') {
+            steps {
+                script {
+                    // Activate virtual environment and run bandit
+                    bat """
+                        call ${VIRTUAL_ENV}\\Scripts\\activate
+                        bandit -r . -f html -o bandit_report.html                    
+                    """
+                }
+                // Archive the report as a Jenkins artifact
+                archiveArtifacts artifacts: 'bandit_report.html', allowEmptyArchive: true
+            }
+        }
         stage('Deploy') {
             steps {
                 script {
-                    // Deployment logic, placeholder echo statement
+                    // Basic deployment script
                     echo "Deploying application..."
+                    bat """
+                        call ${VIRTUAL_ENV}\\Scripts\\activate
+                        python deploy.py
+                    """
                 }
             }
         }
