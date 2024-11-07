@@ -1,7 +1,11 @@
 pipeline {
-    agent any 
+    agent any
     environment {
         VIRTUAL_ENV = 'venv'
+        // Ensure PATH includes the virtual environment's Scripts directory
+        PATH = "${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts;${env.PATH}"
+        // Add the workspace root to PYTHONPATH
+        PYTHONPATH = "${env.WORKSPACE};${env.PYTHONPATH}"
     }
     stages {
         stage('Verify Python') {
@@ -14,7 +18,7 @@ pipeline {
             steps {
                 script {
                     // Create virtual environment only if it doesn't exist
-                    if (!fileExists("${env.WORKSPACE}\\${VIRTUAL_ENV}")) {
+                    if (!fileExists("${env.WORKSPACE}\\${VIRTUAL_ENV}\\Scripts\\activate")) {
                         bat "python -m venv ${VIRTUAL_ENV}"
                     }
                     // Activate virtual environment and upgrade pip, then install dependencies
@@ -23,7 +27,13 @@ pipeline {
                         python -m pip install --upgrade pip
                         pip install -r requirements.txt
                     """
-                }                
+                }
+            }
+        }
+        stage('Verify File Structure') {
+            steps {
+                bat 'dir'
+                bat 'dir venv'
             }
         }
         stage('Lint') {
@@ -32,7 +42,7 @@ pipeline {
                     // Activate virtual environment and run flake8
                     bat """
                         call ${VIRTUAL_ENV}\\Scripts\\activate
-                        flake8 app.py
+                        flake8 app1.py
                     """
                 }
             }
@@ -57,7 +67,7 @@ pipeline {
             }
         }
     }
-    post { 
+    post {
         always {
             cleanWs()
         }
