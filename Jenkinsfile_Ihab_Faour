@@ -76,9 +76,11 @@ pipeline {
                 script {
                     // Activate virtual environment and install Bandit
                     bat """
+                        set +e
                         call ${VIRTUAL_ENV}\\Scripts\\activate
                         pip install bandit
-                        bandit -r . -s B108 -o bandit-report.txt || echo 'Bandit completed with warnings, continuing build.'
+                        bandit -r . -s B108 -f txt -o bandit-report.txt 
+                        echo 'Bandit completed with warnings, continuing build.'
                     """
                 }
             }
