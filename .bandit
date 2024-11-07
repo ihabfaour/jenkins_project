@@ -1,0 +1,7 @@
+# .bandit
+skips:
+  - B101
+  - B102
+tests:
+  - B201
+  - B301

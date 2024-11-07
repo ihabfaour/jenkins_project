@@ -77,11 +77,17 @@ pipeline {
                     // Activate virtual environment and run bandit
                     bat """
                         call ${VIRTUAL_ENV}\\Scripts\\activate
-                        bandit -r . -f html -o bandit_report.html                    
+                        bandit -r . -f html -o bandit_report.html > bandit_output.log 2>&1
                     """
+                }
+                // Display the Bandit log output for debugging
+                script {
+                    bat 'type bandit_output.log'
                 }
                 // Archive the report as a Jenkins artifact
                 archiveArtifacts artifacts: 'bandit_report.html', allowEmptyArchive: true
+                // Optionally, archive the log for further inspection
+                archiveArtifacts artifacts: 'bandit_output.log', allowEmptyArchive: true
             }
         }
         stage('Deploy') {
