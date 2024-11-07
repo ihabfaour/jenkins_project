@@ -4,6 +4,12 @@ pipeline {
         VIRTUAL_ENV = 'venv'
     }
     stages {
+        stage('Verify Python') {
+            steps {
+                bat 'python --version'
+                bat 'pip --version'
+            }
+        }
         stage('Setup') {
             steps {
                 script {
@@ -12,6 +18,7 @@ pipeline {
                         bat "python -m venv ${VIRTUAL_ENV}"
                     }
                     // Activate virtual environment and install dependencies
+                    bat "${VIRTUAL_ENV}\\Scripts\\activate && pip install --upgrade pip"
                     bat "${VIRTUAL_ENV}\\Scripts\\activate && pip install -r requirements.txt"
                 }                
             }
